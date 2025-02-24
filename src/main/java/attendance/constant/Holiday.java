@@ -32,6 +32,7 @@ public enum Holiday {
     }
 
     public static boolean isHoliday(LocalDate date) {
-        return Arrays.stream(values()).anyMatch(value -> value.date.equals(date));
+        return Arrays.stream(values())
+                .anyMatch(value -> value.date.equals(date));
     }
 }
