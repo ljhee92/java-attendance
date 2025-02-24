@@ -66,32 +66,23 @@ public class Attendances {
 
     public List<Attendance> getAddAbsenceAttendances(LocalDate today) {
         int day = today.getDayOfMonth();
-        List<Attendance> copiedAttendances = new ArrayList<>(attendances);
-        copiedAttendances.removeIf(attendance -> attendance.getAttendanceDateTime().getDayOfMonth() == day);
-        int sequence = 0;
+        List<Attendance> newAttendances = new ArrayList<>();
         for (int i = 1; i < day; i++) {
-            LocalDate currentDay = LocalDate.of(today.getYear(), today.getMonth(), i);
-            if (DateUtil.isWeekend(currentDay)) {
-                continue;
-            }
-            addAbsenceRecord(sequence, copiedAttendances, currentDay);
-            sequence++;
+            addAttendance(today, i, newAttendances);
         }
-        return copiedAttendances;
+        return newAttendances;
     }
 
-    private void addAbsenceRecord(int sequence, List<Attendance> copiedAttendancesOfCrew, LocalDate currentDay) {
-        Attendance attendance;
-        if (sequence >= copiedAttendancesOfCrew.size()) {
-            attendance = Attendance.of(LocalDateTime.of(currentDay, LocalTime.MIN));
-            copiedAttendancesOfCrew.add(attendance);
+    private void addAttendance(LocalDate today, int i, List<Attendance> newAttendances) {
+        LocalDate currentDay = LocalDate.of(today.getYear(), today.getMonth(), i);
+        if (DateUtil.isWeekend(currentDay)) {
             return;
         }
-        attendance = copiedAttendancesOfCrew.get(sequence);
-        if (attendance.getAttendanceDateTime().getDayOfMonth() > currentDay.getDayOfMonth()) {
-            copiedAttendancesOfCrew.add(sequence,
-                    Attendance.of(LocalDateTime.of(currentDay, LocalTime.MIN)));
-        }
+        Attendance attendance = attendances.stream()
+                .filter(existAttendance -> existAttendance.getAttendanceDateTime().toLocalDate().equals(currentDay))
+                .findFirst()
+                .orElse(Attendance.of(LocalDateTime.of(currentDay, LocalTime.MIN)));
+        newAttendances.add(attendance);
     }
 
     @Override
