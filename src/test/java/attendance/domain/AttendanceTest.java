@@ -28,8 +28,8 @@ public class AttendanceTest {
 
     static Stream<Arguments> generateAttendanceOfWeekend() {
         return Stream.of(
-                Arguments.of(LocalDate.of(2024, 12, 14), AttendancePolicy.GENERAL_EDUCATION_START_TIME.getTime(), "토요일"),
-                Arguments.of(LocalDate.of(2024, 12, 15), AttendancePolicy.GENERAL_EDUCATION_START_TIME.getTime(), "일요일")
+                Arguments.of(LocalDate.of(2024, 12, 14), LocalTime.MIN, "토요일"),
+                Arguments.of(LocalDate.of(2024, 12, 15), LocalTime.MIN, "일요일")
         );
     }
 
@@ -44,8 +44,8 @@ public class AttendanceTest {
 
     static Stream<Arguments> generateAttendanceOfWeekday() {
         return Stream.of(
-                Arguments.of(LocalDate.of(2024, 12, 9), AttendancePolicy.MONDAY_EDUCATION_START_TIME.getTime(), "월요일"),
-                Arguments.of(LocalDate.of(2024, 12, 10), AttendancePolicy.GENERAL_EDUCATION_START_TIME.getTime(), "화요일")
+                Arguments.of(LocalDate.of(2024, 12, 9), LocalTime.MIN, "월요일"),
+                Arguments.of(LocalDate.of(2024, 12, 10), LocalTime.MIN, "화요일")
         );
     }
 

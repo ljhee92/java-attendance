@@ -20,10 +20,6 @@ public enum AttendancePolicy {
         this.time = time;
     }
 
-    public LocalTime getTime() {
-        return time;
-    }
-
     public static boolean isCheckIn(DayOfWeek dayOfWeek, LocalTime attendanceTime) {
         if (dayOfWeek == DayOfWeek.MONDAY) {
             return attendanceTime.equals(OPERATING_START_TIME.time) ||
