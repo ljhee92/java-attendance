@@ -8,7 +8,6 @@ import attendance.domain.Crew;
 import attendance.domain.Crews;
 import attendance.domain.Penalty;
 import attendance.file.AttendanceFileReader;
-import attendance.file.AttendanceFileReader.FileContents;
 import attendance.util.DateUtil;
 import attendance.view.InputView;
 import attendance.view.OutputView;
@@ -17,22 +16,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
 public class AttendanceController {
 
-    private final AttendancesBook attendancesBook;
-    private final Crews crews;
+    private static final String path = "src/main/resources/attendances.csv";
+    private static final String DELIMITER = ",";
+    private static final int CREW_INDEX = 0;
+    private static final int DATETIME_INDEX = 1;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public AttendanceController() {
-        String path = "src/main/resources/attendances.csv";
-        FileContents fileContents = AttendanceFileReader.read(path);
-        attendancesBook = fileContents.attendancesBook();
-        crews = fileContents.crews();
-    }
+    private AttendancesBook attendancesBook;
+    private Crews crews;
 
     public void run() {
+        initialize();
         while (true) {
             String inputFunction = InputView.readFunction();
             try {
@@ -62,10 +63,22 @@ public class AttendanceController {
         }
     }
 
+    private void initialize() {
+        List<String> contentsByLine = AttendanceFileReader.readContents(path);
+        attendancesBook = new AttendancesBook(new HashMap<>());
+        crews = new Crews(new HashSet<>());
+        contentsByLine.forEach(line -> {
+            Crew crew = new Crew(line.split(DELIMITER)[CREW_INDEX]);
+            crews.addCrew(crew);
+            LocalDateTime attendanceTime = LocalDateTime.parse(line.split(DELIMITER)[DATETIME_INDEX], FORMATTER);
+            attendancesBook.addAttendance(crew, Attendance.of(attendanceTime));
+        });
+    }
+
     private void validateAttendanceDate(LocalDate attendDate) {
         if (DateUtil.isWeekend(attendDate) || Holiday.isHoliday(attendDate)) {
             throw new IllegalArgumentException(String.format("%n[ERROR] %s은 등교일이 아닙니다.", attendDate.format(
-                DateTimeFormatter.ofPattern(OutputView.DATE_FORMATTER, Locale.KOREAN))));
+                    DateTimeFormatter.ofPattern(OutputView.DATE_FORMATTER, Locale.KOREAN))));
         }
     }
 

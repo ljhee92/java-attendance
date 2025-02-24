@@ -1,24 +1,41 @@
 package attendance.domain;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import attendance.file.AttendanceFileReader;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class AttendancesBookTest {
-    private static String path = "src/test/resources/testAttendances.csv";
+    public static final String path = "src/test/resources/testAttendances.csv";
+    public static final String DELIMITER = ",";
+    public static final int CREW_INDEX = 0;
+    private static final int DATETIME_INDEX = 1;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     private AttendancesBook attendancesBook;
+    private Crews crews;
 
     @BeforeEach
-    void setUp() throws IOException {
-        attendancesBook = AttendanceFileReader.read(path).attendancesBook();
+    void setUp() {
+        List<String> contentsByLine = AttendanceFileReader.readContents(path);
+        attendancesBook = new AttendancesBook(new HashMap<>());
+        crews = new Crews(new HashSet<>());
+        contentsByLine.forEach(line -> {
+            Crew crew = new Crew(line.split(DELIMITER)[CREW_INDEX]);
+            crews.addCrew(crew);
+            LocalDateTime attendanceTime = LocalDateTime.parse(line.split(DELIMITER)[DATETIME_INDEX], FORMATTER);
+            attendancesBook.addAttendance(crew, Attendance.of(attendanceTime));
+        });
     }
 
     @Test
