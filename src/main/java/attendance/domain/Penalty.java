@@ -4,7 +4,7 @@ public enum Penalty {
     REMOVAL("제적"),
     INTERVIEW("면담"),
     WARNING("경고"),
-    NONE("")
+    NONE(null)
     ;
 
     private static final int LATE_PER_ABSENCE = 3;

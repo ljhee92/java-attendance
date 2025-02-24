@@ -10,14 +10,14 @@ public enum AttendanceStatus {
     LATE("지각")
     ;
 
-    private final String status;
+    private final String name;
 
-    AttendanceStatus(String status) {
-        this.status = status;
+    AttendanceStatus(String name) {
+        this.name = name;
     }
 
-    public String getStatus() {
-        return status;
+    public String getName() {
+        return name;
     }
 
     public static AttendanceStatus determineStatus(LocalDateTime attendanceDateTime) {

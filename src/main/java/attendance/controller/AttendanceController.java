@@ -2,11 +2,13 @@ package attendance.controller;
 
 import attendance.constant.Holiday;
 import attendance.domain.Attendance;
+import attendance.domain.AttendanceResult;
 import attendance.domain.AttendanceStatus;
 import attendance.domain.AttendancesBook;
 import attendance.domain.Crew;
 import attendance.domain.Crews;
 import attendance.domain.Penalty;
+import attendance.domain.PenaltyResult;
 import attendance.file.AttendanceFileReader;
 import attendance.util.DateUtil;
 import attendance.view.InputView;
@@ -16,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,7 +63,7 @@ public class AttendanceController {
             checkAttendanceRecordOfCrew();
         }
         if (inputFunction.equals("4")) {
-            OutputView.printPenaltyOfCrews(crews.getCrews(), attendancesBook);
+            printPenaltyResult();
         }
     }
 
@@ -89,7 +92,7 @@ public class AttendanceController {
         LocalDateTime attendanceDateTime = LocalDateTime.of(SYSTEM_DATE, checkInTime);
         Attendance attendance = Attendance.of(attendanceDateTime);
         attendancesBook.addAttendance(crew, attendance);
-        OutputView.printAttendanceResult(attendance);
+        OutputView.printAttendanceResult(new AttendanceResult(attendance.getAttendanceDateTime(), attendance.getStatus().getName()));
     }
 
     private Crew getCrew() {
@@ -111,7 +114,9 @@ public class AttendanceController {
 
         Attendance previousAttendance = attendancesBook.getExistAttendanceOfCrew(crew, modifyingCheckInDate);
         Attendance modifiedAttendance = attendancesBook.modify(crew, previousAttendance, modifyingCheckInTime);
-        OutputView.printModifyingResult(previousAttendance, modifiedAttendance);
+        AttendanceResult previousResult = new AttendanceResult(previousAttendance.getAttendanceDateTime(), previousAttendance.getStatus().getName());
+        AttendanceResult modifiedResult = new AttendanceResult(modifiedAttendance.getAttendanceDateTime(), modifiedAttendance.getStatus().getName());
+        OutputView.printModifyingResult(previousResult, modifiedResult);
     }
 
     private LocalTime getModifyingCheckInTime() {
@@ -127,10 +132,27 @@ public class AttendanceController {
     private void checkAttendanceRecordOfCrew() {
         Crew crew = getCrew();
         List<Attendance> attendancesOfCrew = attendancesBook.getAttendancesOfCrew(crew, SYSTEM_DATE);
+        List<AttendanceResult> attendanceResults = attendancesOfCrew.stream()
+                .map(attendance -> new AttendanceResult(attendance.getAttendanceDateTime(), attendance.getStatus().getName()))
+                .toList();
+
         int attendanceCount = attendancesBook.countAttendanceStatus(attendancesOfCrew, AttendanceStatus.CHECKIN);
         int lateCount = attendancesBook.countAttendanceStatus(attendancesOfCrew, AttendanceStatus.LATE);
         int absenceCount = attendancesBook.countAttendanceStatus(attendancesOfCrew, AttendanceStatus.ABSENCE);
-        Penalty penalty = Penalty.determine(absenceCount, lateCount);
-        OutputView.printAttendancesAndPenalty(attendancesOfCrew, crew, attendanceCount, lateCount, absenceCount, penalty);
+        String penalty = Penalty.determine(absenceCount, lateCount).getStatus();
+        OutputView.printAttendancesAndPenalty(attendanceResults, crew.getNickName(), attendanceCount, lateCount, absenceCount, penalty);
+    }
+
+    private void printPenaltyResult() {
+        List<PenaltyResult> penaltyResults = crews.getCrews().stream()
+                .map(crew -> {
+                    List<Attendance> attendanceOfCrew = attendancesBook.getAttendancesOfCrew(crew, LocalDate.now());
+                    int absenceCount = attendancesBook.countAttendanceStatus(attendanceOfCrew, AttendanceStatus.ABSENCE);
+                    int lateCount = attendancesBook.countAttendanceStatus(attendanceOfCrew, AttendanceStatus.LATE);
+                    Penalty penalty = Penalty.determine(absenceCount, lateCount);
+                    return new PenaltyResult(crew.getNickName(), absenceCount, lateCount, penalty.getStatus());
+                })
+                .toList();
+        OutputView.printPenaltyResults(new ArrayList<>(penaltyResults));
     }
 }
