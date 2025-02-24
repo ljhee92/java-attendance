@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Crew {
 
-    private String nickName;
+    private final String nickName;
 
     public Crew(String nickName) {
         this.nickName = nickName;
