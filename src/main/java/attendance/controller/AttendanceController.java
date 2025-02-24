@@ -28,6 +28,7 @@ public class AttendanceController {
     private static final int CREW_INDEX = 0;
     private static final int DATETIME_INDEX = 1;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final LocalDate SYSTEM_DATE = LocalDate.now();
 
     private AttendancesBook attendancesBook;
     private Crews crews;
@@ -49,7 +50,7 @@ public class AttendanceController {
 
     private void performFunction(String inputFunction) {
         if (inputFunction.equals("1")) {
-            validateAttendanceDate(LocalDate.now());
+            validateAttendanceDate(SYSTEM_DATE);
             recordAttendance();
         }
         if (inputFunction.equals("2")) {
@@ -85,7 +86,7 @@ public class AttendanceController {
     private void recordAttendance() {
         Crew crew = getCrew();
         LocalTime checkInTime = getCheckInTime();
-        LocalDateTime attendanceDateTime = LocalDateTime.of(LocalDate.now(), checkInTime);
+        LocalDateTime attendanceDateTime = LocalDateTime.of(SYSTEM_DATE, checkInTime);
         Attendance attendance = Attendance.of(attendanceDateTime);
         attendancesBook.addAttendance(crew, attendance);
         OutputView.printAttendanceResult(attendance);
@@ -120,12 +121,12 @@ public class AttendanceController {
 
     private LocalDate getModifyingCheckInDate() {
         String inputModifyingCheckinDate = InputView.readModifyingCheckinDate();
-        return LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), Integer.parseInt(inputModifyingCheckinDate));
+        return LocalDate.of(SYSTEM_DATE.getYear(), SYSTEM_DATE.getMonth(), Integer.parseInt(inputModifyingCheckinDate));
     }
 
     private void checkAttendanceRecordOfCrew() {
         Crew crew = getCrew();
-        List<Attendance> attendancesOfCrew = attendancesBook.getAttendancesOfCrew(crew, LocalDate.now());
+        List<Attendance> attendancesOfCrew = attendancesBook.getAttendancesOfCrew(crew, SYSTEM_DATE);
         int attendanceCount = attendancesBook.countAttendanceStatus(attendancesOfCrew, AttendanceStatus.CHECKIN);
         int lateCount = attendancesBook.countAttendanceStatus(attendancesOfCrew, AttendanceStatus.LATE);
         int absenceCount = attendancesBook.countAttendanceStatus(attendancesOfCrew, AttendanceStatus.ABSENCE);
