@@ -3,6 +3,7 @@ package attendance.view;
 import attendance.domain.AttendanceResult;
 import attendance.domain.Crew;
 import attendance.domain.PenaltyResult;
+import attendance.util.DateUtil;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -11,7 +12,6 @@ import java.util.Locale;
 
 public class OutputView {
 
-    public static final String DATE_FORMATTER = "MM월 dd일 EEE요일";
     private static final String TIME_FORMATTER = "HH:mm";
     private static final String ABSENCE_FORMATTER = "MM월 dd일 EEE요일 --:--";
 
@@ -20,13 +20,13 @@ public class OutputView {
 
     public static void printAttendanceResult(AttendanceResult attendanceResult) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(
-            DATE_FORMATTER + " " + TIME_FORMATTER, Locale.KOREAN);
+                DateUtil.DATE_FORMATTER + " " + TIME_FORMATTER, Locale.KOREAN);
         String attendanceDate = attendanceResult.dateTime().format(dateTimeFormatter);
         System.out.printf("%n%s (%s)%n", attendanceDate, attendanceResult.status());
     }
 
     public static void printModifyingResult(AttendanceResult previousResult, AttendanceResult modifiedResult) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMATTER, Locale.KOREAN);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DateUtil.DATE_FORMATTER, Locale.KOREAN);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMATTER, Locale.KOREAN);
 
         String date = previousResult.dateTime().format(dateFormatter);
@@ -53,7 +53,7 @@ public class OutputView {
     }
 
     private static String getFormattedAttendanceRecord(AttendanceResult attendanceResult) {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMATTER + " " + TIME_FORMATTER, Locale.KOREAN);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DateUtil.DATE_FORMATTER + " " + TIME_FORMATTER, Locale.KOREAN);
         DateTimeFormatter absenceFormatter = DateTimeFormatter.ofPattern(ABSENCE_FORMATTER, Locale.KOREAN);
 
         String attendanceDateTime = attendanceResult.dateTime().format(dateTimeFormatter);

@@ -86,7 +86,7 @@ public class AttendanceController {
     private void validateAttendanceDate(LocalDate attendDate) {
         if (DateUtil.isWeekend(attendDate) || Holiday.isHoliday(attendDate)) {
             throw new IllegalArgumentException(String.format("%n[ERROR] %s은 등교일이 아닙니다.", attendDate.format(
-                    DateTimeFormatter.ofPattern(OutputView.DATE_FORMATTER, Locale.KOREAN))));
+                    DateTimeFormatter.ofPattern(DateUtil.DATE_FORMATTER, Locale.KOREAN))));
         }
     }
 

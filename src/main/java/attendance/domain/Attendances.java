@@ -84,11 +84,4 @@ public class Attendances {
                 .orElse(Attendance.of(LocalDateTime.of(currentDay, LocalTime.MIN)));
         newAttendances.add(attendance);
     }
-
-    @Override
-    public String toString() {
-        return "Attendances{" +
-                "attendances=" + attendances +
-                '}';
-    }
 }

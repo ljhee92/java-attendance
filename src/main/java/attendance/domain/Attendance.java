@@ -5,6 +5,8 @@ import attendance.util.DateUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Objects;
 
 public class Attendance {
@@ -13,8 +15,7 @@ public class Attendance {
     private AttendanceStatus status;
 
     private Attendance(LocalDateTime attendanceDateTime) {
-        validateDayOfWeek(attendanceDateTime);
-        validateHoliday(attendanceDateTime);
+        validateAttendanceDate(attendanceDateTime.toLocalDate());
         this.status = AttendanceStatus.determineStatus(attendanceDateTime);
         this.attendanceDateTime = attendanceDateTime;
     }
@@ -23,16 +24,10 @@ public class Attendance {
         return new Attendance(attendanceDateTime);
     }
 
-    private void validateDayOfWeek(LocalDateTime attendanceDateTime) {
-        if (DateUtil.isWeekend(attendanceDateTime.toLocalDate())) {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private void validateHoliday(LocalDateTime attendanceDateTime) {
-        LocalDate date = attendanceDateTime.toLocalDate();
-        if (Holiday.isHoliday(date)) {
-            throw new IllegalArgumentException();
+    private void validateAttendanceDate(LocalDate attendDate) {
+        if (DateUtil.isWeekend(attendDate) || Holiday.isHoliday(attendDate)) {
+            throw new IllegalArgumentException(String.format("%n[ERROR] %s은 등교일이 아닙니다.", attendDate.format(
+                    DateTimeFormatter.ofPattern(DateUtil.DATE_FORMATTER, Locale.KOREAN))));
         }
     }
 
@@ -59,13 +54,5 @@ public class Attendance {
     @Override
     public int hashCode() {
         return Objects.hash(attendanceDateTime, status);
-    }
-
-    @Override
-    public String toString() {
-        return "Attendance{" +
-                "attendanceDateTime=" + attendanceDateTime +
-                ", status=" + status +
-                '}';
     }
 }
