@@ -38,31 +38,35 @@ public class AttendanceController {
 
     public void run() {
         initialize();
+        repeat();
+    }
+
+    private void repeat() {
         while (true) {
             String inputFunction = InputView.readFunction();
+            if ("Q".equals(inputFunction)) {
+                break;
+            }
             try {
                 performFunction(inputFunction);
-                if (inputFunction.equals("Q")) {
-                    break;
-                }
             } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
+                OutputView.printErrorMessage(e.getMessage());
             }
         }
     }
 
     private void performFunction(String inputFunction) {
-        if (inputFunction.equals("1")) {
+        if ("1".equals(inputFunction)) {
             validateAttendanceDate(SYSTEM_DATE);
             recordAttendance();
         }
-        if (inputFunction.equals("2")) {
+        if ("2".equals(inputFunction)) {
             modifyAttendance();
         }
-        if (inputFunction.equals("3")) {
+        if ("3".equals(inputFunction)) {
             checkAttendanceRecordOfCrew();
         }
-        if (inputFunction.equals("4")) {
+        if ("4".equals(inputFunction)) {
             printPenaltyResult();
         }
     }
